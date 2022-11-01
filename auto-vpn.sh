@@ -1,9 +1,6 @@
 #!/bin/bash
 
 reload_handler() {
-  if [ -n "${openvpn_PID}" ]; then
-    kill "${openvpn_PID}"
-  fi
   source /etc/auto-vpn.conf
   log "Reloaded!"
 }
