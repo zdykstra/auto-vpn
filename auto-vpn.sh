@@ -42,7 +42,14 @@ log() {
 source /etc/auto-vpn.conf || exit 1
 
 while true; do
-  if ! at_home; then
+  if at_home; then
+    if [ -n "${openvpn_PID}" ]; then
+      log "Connected to a network at home, killing OpenVPN process ${openvpn_PID}"
+      kill "${openvpn_PID}"
+    fi
+  fi
+
+  if ! at_home && [ -z "${openvpn_PID}" ]; then
     #shellcheck disable=SC2154,2034 
     coproc openvpn (
       openvpn --config "${ovpnconf}"
@@ -50,20 +57,5 @@ while true; do
     log "Connected to OpenVPN, client process ID is ${openvpn_PID}"
   fi
 
-  while true; do
-    if at_home; then
-      if [ -n "${openvpn_PID}" ]; then
-        log "Connected to a network at home, killing OpenVPN process ${openvpn_PID}"
-        kill "${openvpn_PID}"
-        break
-      fi
-    elif [ -z "${openvpn_PID}" ]; then
-      log "OpenVPN process has died, reconnecting"
-      break
-    fi
-
-    sleep 5
-  done
-  
   sleep 5
 done
