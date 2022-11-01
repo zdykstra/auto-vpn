@@ -10,6 +10,7 @@ reload_handler() {
 trap reload_handler HUP 
 
 cleanup() {
+  log "Exit requested, stopping"
   if [ -n "${openvpn_PID}" ]; then
     log "Killing ${openvpn_PID}"
     kill "${openvpn_PID}"
@@ -50,21 +51,19 @@ while true; do
   fi
 
   while true; do
-    if [ -z "${openvpn_PID}" ]; then
-      log "OpenVPN process has died, reconnecting"
-      break
-    fi
-
     if at_home; then
       if [ -n "${openvpn_PID}" ]; then
         log "Connected to a network at home, killing OpenVPN process ${openvpn_PID}"
         kill "${openvpn_PID}"
         break
       fi
+    elif [ -z "${openvpn_PID}" ]; then
+      log "OpenVPN process has died, reconnecting"
+      break
     fi
 
-    sleep 10
+    sleep 5
   done
   
-  sleep 10
+  sleep 5
 done
