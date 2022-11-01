@@ -43,10 +43,9 @@ while true; do
     if [ -n "${openvpn_PID}" ]; then
       log "Connected to a network at home, killing OpenVPN process ${openvpn_PID}"
       kill "${openvpn_PID}"
+      wait "${openvpn_PID}"
     fi
-  fi
-
-  if ! at_home && [ -z "${openvpn_PID}" ]; then
+  elif [ -z "${openvpn_PID}" ] && ! at_home; then
     #shellcheck disable=SC2154,2034 
     coproc openvpn (
       openvpn --config "${ovpnconf}"
