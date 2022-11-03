@@ -20,7 +20,15 @@ at_home() {
   local home network
 
   #shellcheck disable=SC2154
-  network="$( iwctl station "${device}" show | awk '/Connected network/{ print $3 }' )"
+  network="$(
+    timeout --kill-after=1 --signal=TERM 5 \
+    iwctl station "${device}" show \
+      | awk '/Connected network/{ print $3 }'
+  )"
+
+  if [ -z "${network}" ]; then
+    return 1
+  fi
 
   #shellcheck disable=SC2154
   for home in "${home_networks[@]}"; do
